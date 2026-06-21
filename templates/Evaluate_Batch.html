@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="main">
+    <div class="hero">
+        <div class="hero-avatar">🌿</div>
+
+        <div>
+            <div class="hero-title">Excel Processor</div>
+            <div class="hero-sub">
+                Upload an excel, with the preconfigured format to predict its values.
+            </div>
+            <div class="black-line"></div>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <strong>Upload Excel With Only One Asset</strong>
+    </div>
+
+
+     <!-- FLASK UPLOAD FORM -->
+    <form id="uploadForm">
+
+        <div class="activity">
+            <div class="cards" style="margin-top: 20px;">
+
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="ti ti-upload"></i>
+                    </div>
+
+                    <div class="card-label">
+                        <input type="file" id="fileInput" name="file" required>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="ti ti-player-play"></i>
+                    </div>
+
+                    <div class="card-label">
+                        <button type="submit">
+                            Process Excel File
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>   
+    
+    <!-- OUTPUT -->
+    <div id="output"></div>
+
+    <div class="card" id="output-frame">
+        <div class="card-icon">
+            <i class="ti ti-report"></i>
+        </div>
+
+        <div class="card-label" id="output-label"></div>
+    </div>
+
+    <div id="output-container" style="display:none; margin-top:15px;">
+        <a id="download-btn"
+           style="padding:8px 12px; background-color:green; color:white; border-radius:4px; text-decoration:none;">
+            Download Processed Excel
+        </a>
+    </div>
+    
+</main>
+<!-- FLASK CONNECT SCRIPT -->
+
+<script>
+document.getElementById("uploadForm").onsubmit = async (e) => {
+    e.preventDefault();
+
+    const fileInput = document.getElementById("fileInput");
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    const res = await fetch("/predict", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await res.json();
+
+    // ----------------------------
+    // 1. BUILD TABLE PREVIEW
+    // ----------------------------
+    const preview = data.preview;
+
+    let html = "<table border='1' style='margin-top:10px; width:100%; border-collapse:collapse'>";
+
+    const headers = Object.keys(preview[0]);
+    html += "<tr>" + headers.map(h => `<th>${h}</th>`).join("") + "</tr>";
+
+    preview.forEach(row => {
+        html += "<tr>" + headers.map(h => `<td>${row[h]}</td>`).join("") + "</tr>";
+    });
+
+    html += "</table>";
+
+    document.getElementById("output-label").innerHTML = html;
+
+    // ----------------------------
+    // 2. ENABLE DOWNLOAD
+    // ----------------------------
+    const link = document.getElementById("download-btn");
+    link.href = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + data.file;
+    link.download = "predictions.xlsx";
+
+    document.getElementById("output-container").style.display = "block";
+};
+</script>
+
+{% endblock %}

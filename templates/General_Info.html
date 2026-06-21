@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <main class="main">
+    <div class="hero">
+      <div class="hero-avatar" aria-hidden="true">🌿</div>
+      <div>
+        <div class="hero-title">Excel Processor</div>
+        <div class="hero-sub">Upload an excel, with the preconfigured format to predict its values.</div>
+        <div class="black-line"></div>
+        <br>
+        <span> Tags:</span>
+        <br>
+        <span class="tag">XGBoost</span>
+        <span class="tag">Feature Importance</span>
+        <span class="tag">KNN</span>
+        <span class="tag">Similar Property Finder</span>
+        <span class="tag">ExAi</span>
+        <span class="tag">Shap</span>
+      </div>
+    </div>
+
+    <div class="section-title"><strong>Statistics</strong></div>
+    
+    <div class="activity">
+      <div class="cards" style="margin-top: 20px;">
+
+        <div class="card" style="min-height: 500px;" >
+          <div class="card-icon"><i class="ti ti-heart" aria-hidden="true"></i></div>
+          <div class="card-label"></div>
+
+          <div class="data-panel">
+            <p class="panel-title"><strong>R² validation scores</strong></p>
+            <table class="metrics-table">
+              <thead><tr><th>Metric</th><th>Score</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Train R² (log scale)</td>
+                  <td><span class="score-pill score-high">0.8918</span></td>
+                </tr>
+                <tr>
+                  <td>Test R² (log scale)</td>
+                  <td><span class="score-pill score-mid">0.7166</span></td>
+                </tr>
+                <tr>
+                  <td>Test R² (euro scale)</td>
+                  <td><span class="score-pill score-low">0.5278</span></td>
+                </tr>
+                <tr>
+                  <td>CV fold scores</td>
+                  <td><div class="fold-list">0.7117 · 0.6965 · 0.7335<br>0.7383 · 0.7533</div></td>
+                </tr>
+              </tbody>
+            </table>
+            
+          </div>
+        </div>
+      
+      
+        <div class="card" style="min-height: 500px;">
+            <div class="card-icon"><i class="ti ti-heart" aria-hidden="true"></i></div>
+            <div class="card-label"></div> 
+            <div class="data-panel">
+            
+            <div class="data-panel">
+              <p class="panel-title"><strong>Final valuation summary</strong></p>
+              <table class="metrics-table">
+                <thead><tr><th>Statistic</th><th>Value</th></tr></thead>
+                <tbody>
+                  <tr><td>Total properties</td><td>2,159</td></tr>
+                  <tr><td>Mean value</td><td>€109,672</td></tr>
+                  <tr><td>Std deviation</td><td>€74,504</td></tr>
+                  <tr><td>Minimum</td><td>€1,027</td></tr>
+                  <tr><td>Median (50th pct)</td><td>€100,000</td></tr>
+                  <tr><td>95th percentile</td><td>€249,713</td></tr>
+                  <tr><td>99th percentile</td><td>€290,000</td></tr>
+                  <tr><td>Maximum</td><td>€299,508</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>                  
+      </div>
+    </div>    
+    <div class="card" style="min-height: 500px;">
+      <div class="section-grid single">
+        <div class="data-panel">
+
+          <p class="panel-title">Feature importance weights</p>
+          <table class="metrics-table">
+            <thead><tr><th>Feature</th><th style="text-align:left; padding-left: 0;">Distribution</th><th>Weight</th></tr></thead>
+            <tbody id="feat-rows"></tbody>
+          </table>
+        </div>
+      </div>
+  </div>
+
+
+    <script>
+    const features = [
+      ["Asset type", 0.2795],
+      ["Postal code", 0.1534],
+      ["City", 0.1218],
+      ["Area", 0.0993],
+      ["Floor", 0.0935],
+      ["Region", 0.0929],
+      ["Issue (Y/N)", 0.0404],
+      ["Construction year", 0.0362],
+      ["Marketability score", 0.0356],
+      ["Ownership %", 0.0269],
+      ["Comment", 0.0206],
+    ];
+    const max = features[0][1];
+    const tbody = document.getElementById("feat-rows");
+    features.forEach(([name, w], i) => {
+      const pct = Math.round((w / max) * 100);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="feature-name"><span class="rank">${i+1}</span>${name}</td>
+        <td style="padding-right: 16px; min-width: 140px;">
+          <div class="bar-row">
+            <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div>
+          </div>
+        </td>
+        <td>${w.toFixed(4)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    </script>
+  
+  
+  
+  </main>
+
+{% endblock %}
