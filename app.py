@@ -103,5 +103,13 @@ def info():
     return render_template("General_Info.html")
 
 
+@app.errorhandler(500)
+def handle_internal_server_error(e):
+    # This captures any unhandled exceptions and sends JSON instead of HTML
+    return jsonify({
+        "error": "Internal Server Error",
+        "message": str(e)
+    }), 500
+
 if __name__ == "__main__":
     app.run(debug=True)
