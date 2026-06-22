@@ -8,6 +8,7 @@ import json
 import os
 from io import BytesIO
 import base64
+from pathlib import Path
 
 app = Flask(__name__)
 
@@ -16,6 +17,7 @@ app = Flask(__name__)
 # -----------------------------
 _MODEL_CACHE = None
 _category_map = None
+BASE_DIR = Path(__file__).resolve().parent
 
 
 def get_model():
@@ -23,7 +25,10 @@ def get_model():
 
     if _MODEL_CACHE is None:
         model = xgb.XGBRegressor(enable_categorical=True)
-        model.load_model("xgb_model.json")
+
+        model_path = BASE_DIR / "xgb_model.json"
+        model.load_model(str(model_path))
+
         _MODEL_CACHE = model
 
     return _MODEL_CACHE
@@ -33,7 +38,9 @@ def get_categories():
     global _category_map
 
     if _category_map is None:
-        with open("categories.json", "r") as f:
+        categories_path = BASE_DIR / "categories.json"
+
+        with open(categories_path, "r") as f:
             _category_map = json.load(f)
 
     return _category_map
