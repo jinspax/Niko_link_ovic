@@ -47,7 +47,7 @@
                 </div>
             </div>
         </div>
-    </form>   
+    </form>
     
     <!-- OUTPUT -->
     <div id="output"></div>
@@ -57,7 +57,7 @@
             <i class="ti ti-report"></i>
         </div>
 
-        <div class="card-label" id="output-label"></div>
+        <div class="card-label" id="output-label" style="background-color: beige;"></div>
     </div>
 
     <div id="output-container" style="display:none; margin-top:15px;">
@@ -71,10 +71,9 @@
 <!-- FLASK CONNECT SCRIPT -->
 
 <script>
+const priorityHeaders = ["Asset Type", "City", "Postal Code", "Region", "Construction Year", "Floor", "Area", "Ownership %", "Marketability score", "Final Valuation", "Issue (Y/N)", "Comment"];
 document.getElementById("uploadForm").onsubmit = async (e) => {
     e.preventDefault();
-
-    const fileInput = document.getElementById("fileInput");
 
     const formData = new FormData();
     formData.append("file", fileInput.files[0]);
@@ -87,13 +86,21 @@ document.getElementById("uploadForm").onsubmit = async (e) => {
     const data = await res.json();
 
     // ----------------------------
+    // 0. Warn if some header is missing 
+    // ----------------------------
+    const actualHeaders = Object.keys(data.preview[0]);
+    if (!GiveWarningOnExcel(actualHeaders)) return;
+    // ----------------------------
     // 1. BUILD TABLE PREVIEW
     // ----------------------------
     const preview = data.preview;
 
     let html = "<table border='1' style='margin-top:10px; width:100%; border-collapse:collapse'>";
 
-    const headers = Object.keys(preview[0]);
+    //const headers = Object.keys(preview[0]);
+
+    const restHeaders = Object.keys(preview[0]).filter(h => !priorityHeaders.includes(h));
+    const headers = [...priorityHeaders, ...restHeaders];
     html += "<tr>" + headers.map(h => `<th>${h}</th>`).join("") + "</tr>";
 
     preview.forEach(row => {
@@ -113,6 +120,18 @@ document.getElementById("uploadForm").onsubmit = async (e) => {
 
     document.getElementById("output-container").style.display = "block";
 };
+
+
+function GiveWarningOnExcel(actualHeaders) {
+    const missing = priorityHeaders.filter(h => !actualHeaders.includes(h));
+    if (missing.length > 0) {
+        alert(`Missing columns: ${missing.join(", ")}`);
+        return false;
+    }
+    return true;
+}
 </script>
+
+
 
 {% endblock %}
